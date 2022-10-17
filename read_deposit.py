@@ -38,7 +38,10 @@ def get_deposit():
 	}
 
 	resp = requests.get(read_depo_url, headers=headers, params = params).json()
-	print(resp['append'])
+	if resp['code'] == 200:
+		print(resp['append'])
+	else:
+		print(resp)
 
 # get_deposit()
 
