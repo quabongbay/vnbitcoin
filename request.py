@@ -1,5 +1,4 @@
 import requests
-from requests_tor import RequestsTor
 import base64
 
 import random
@@ -28,7 +27,6 @@ cap_url = base_url + "/v1/User/cap"
 
 
 # If you use the Tor
-rt = RequestsTor(tor_ports=(9050,), tor_cport=9051)
 
 
 def register(data):
