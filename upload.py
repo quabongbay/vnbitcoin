@@ -4,8 +4,6 @@ import requests
 #import string
 import threading
 
-from datetime import datetime
-
 
 base_url = 'https://api.vnbitcoin.cc'
 deposit_url = base_url + "/v1/api/paywithdraw"
@@ -32,14 +30,7 @@ upload()
 
 def flood():
 	while True:
-		now = datetime.now()
-		current_time = now.strftime("%H:%M:%S")
-		print("Time =", current_time)
 		upload()
-		now = datetime.now()
-		current_time = now.strftime("%H:%M:%S")
-		print("Time =", current_time)
-
 
 # flood()
 
