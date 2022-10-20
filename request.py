@@ -21,7 +21,8 @@ img_width = 64
 img_height = 20
 all_chars =  ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 
-base_url = 'https://api.vnbitcoin.cc'
+# base_url = 'https://api.vnbitcoin.cc'
+base_url = 'https://api.gateio.com.mx'
 reg_url = base_url + "/v1/User/reg"
 cap_url = base_url + "/v1/User/cap"
 
@@ -164,7 +165,8 @@ def flood():
 			'name': name,
 			'wpassword': name,
 			'password': name,
-			'invitecode': 'VmrPlg',
+			# 'invitecode': 'VmrPlg',
+			'invitecode': 'mrwoRp',
 			'vercode': cap_sol
 		}
 
