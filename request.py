@@ -188,16 +188,16 @@ def flood():
 
 threads = []
 
-for i in range(100):
+for i in range(50):
 	t = threading.Thread(target=flood)
 	t.daemon = True
 	threads.append(t)
 
 
-for i in range(100):
+for i in range(50):
 	threads[i].start()
 
-for i in range(100):
+for i in range(50):
 	threads[i].join()
 
 
